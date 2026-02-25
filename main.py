@@ -31,6 +31,16 @@ class Component:
             print(f"{self.kind} sudah pada level tertinggi.")
 
 
+class Bait:
+    def __init__(self, name, bonus=None):
+        # bonus is a dict like {'rare': 10, 'legendary': 5}
+        self.name = name
+        self.bonus = bonus or {}
+
+    def __str__(self):
+        return self.name
+
+
 class Equipment:
     def __init__(self):
         self.rod = Component("Joran")
@@ -67,10 +77,13 @@ class Player:
         self.missions = []
         self.unlocked_locations = ["Sungai"]
         self.rare_fish_caught = 0  # count of rare fish for unlocking
+        self.baits = [Bait("Umpan Biasa", {'common': 0, 'rare': 0, 'legendary': 0})]
+        self.active_bait = self.baits[0]
 
     def add_fish(self, fish):
         self.inventory.append(fish)
-        print(f"Menangkap {fish}!")
+        bait_info = f" dengan umpan {self.active_bait}" if self.active_bait else ""
+        print(f"Menangkap {fish}{bait_info}!")
         # increment rare counter and check unlock
         if fish.rarity == "rare":
             self.rare_fish_caught += 1
@@ -78,6 +91,24 @@ class Player:
             if self.rare_fish_caught >= 3 and "Danau" not in self.unlocked_locations:
                 self.unlocked_locations.append("Danau")
                 print("Spot Danau terbuka berkat koleksi ikan rare!")
+
+    def show_baits(self):
+        print("Umpan yang tersedia:")
+        for idx, bait in enumerate(self.baits, start=1):
+            marker = "(aktif)" if bait == self.active_bait else ""
+            print(f"{idx}. {bait} {marker}")
+
+    def select_bait(self):
+        self.show_baits()
+        print(f"{len(self.baits)+1}. Batal")
+        choice = input("> ")
+        try:
+            choice = int(choice)
+        except ValueError:
+            return
+        if 1 <= choice <= len(self.baits):
+            self.active_bait = self.baits[choice-1]
+            print(f"Umpan aktif sekarang: {self.active_bait}")
 
     def show_inventory(self):
         if not self.inventory:
@@ -105,7 +136,7 @@ class Location:
         self.fishes = fishes  # list of Fish
 
     def fish(self, player):
-        # determine caught fish based on equipment
+        # determine caught fish based on equipment and bait
         weights = []
         bonus_level = player.equipment.total_level()
         for fish in self.fishes:
@@ -116,6 +147,10 @@ class Location:
                 base += bonus
             elif fish.rarity == "legendary":
                 base += bonus // 2
+            # bait bonus
+            bait = player.active_bait
+            if bait and fish.rarity in bait.bonus:
+                base += bait.bonus[fish.rarity]
             weights.append(base)
         caught = random.choices(self.fishes, weights=weights, k=1)[0]
         player.add_fish(caught)
@@ -205,8 +240,9 @@ def show_main_menu():
     print("1. Berangkat memancing")
     print("2. Lihat inventory")
     print("3. Periksa & tingkatkan peralatan")
-    print("4. Periksa misi")
-    print("5. Keluar")
+    print("4. Kelola umpan")
+    print("5. Periksa misi")
+    print("6. Keluar")
 
 
 def show_equipment_menu(player):
@@ -285,8 +321,10 @@ def main():
         elif choice == "3":
             show_equipment_menu(player)
         elif choice == "4":
-            check_missions(player)
+            player.select_bait()
         elif choice == "5":
+            check_missions(player)
+        elif choice == "6":
             print("Terima kasih telah bermain!")
             break
         else:
