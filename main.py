@@ -225,7 +225,10 @@ def choose_location(player):
     categories = ["Sungai", "Danau", "Laut"]
     for idx, name in enumerate(categories, start=1):
         status = "(terbuka)" if name in player.unlocked_locations else "(terkunci)"
-        print(f"{idx}. {name} {status}")
+        extra = ""
+        if name == "Laut":
+            extra = " - memerlukan boat level > Basic" if player.equipment.boat.level < 1 else ""
+        print(f"{idx}. {name} {status}{extra}")
     print(f"{len(categories)+1}. Batal")
 
     choice = input("> ")
@@ -235,11 +238,13 @@ def choose_location(player):
         return None
     if 1 <= choice <= len(categories):
         sel = categories[choice-1]
-        if sel in player.unlocked_locations:
-            return locations[sel]
-        else:
+        if sel not in player.unlocked_locations:
             print(f"Spot {sel} belum dibuka.")
             return None
+        if sel == "Laut" and player.equipment.boat.level < 1:
+            print("Anda membutuhkan boat tingkat Advanced untuk pergi ke Laut.")
+            return None
+        return locations[sel]
     return None
 
 
