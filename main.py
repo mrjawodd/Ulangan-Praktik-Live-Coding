@@ -133,13 +133,32 @@ missions_list = [
 
 # --- Game loop ---
 
+def add_new_location(player):
+    print("Masukkan nama lokasi baru:")
+    name = input("> ").strip()
+    if not name:
+        print("Nama tidak boleh kosong.")
+        return
+    if name in locations:
+        print("Lokasi sudah ada.")
+        return
+    # create simple default fish set for new location
+    default_fish = [
+        Fish(f"Ikan A-{i+1}", "common", name) for i in range(3)
+    ]
+    locations[name] = Location(name, default_fish)
+    player.unlocked_locations.append(name)
+    print(f"Lokasi '{name}' ditambahkan dan dibuka!")
+
+
 def show_main_menu():
     print("\n=== Petualangan Mancing Nusantara ===")
     print("1. Berangkat memancing")
     print("2. Lihat inventaris")
     print("3. Periksa peralatan")
     print("4. Periksa misi")
-    print("5. Keluar")
+    print("5. Tambah lokasi baru")
+    print("6. Keluar")
 
 
 def choose_location(player):
@@ -188,6 +207,8 @@ def main():
         elif choice == "4":
             check_missions(player)
         elif choice == "5":
+            add_new_location(player)
+        elif choice == "6":
             print("Terima kasih telah bermain!")
             break
         else:
