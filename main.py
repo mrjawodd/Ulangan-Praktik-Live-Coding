@@ -66,10 +66,18 @@ class Player:
         self.inventory = []
         self.missions = []
         self.unlocked_locations = ["Sungai"]
+        self.rare_fish_caught = 0  # count of rare fish for unlocking
 
     def add_fish(self, fish):
         self.inventory.append(fish)
         print(f"Menangkap {fish}!")
+        # increment rare counter and check unlock
+        if fish.rarity == "rare":
+            self.rare_fish_caught += 1
+            print(f"(Terdeteksi ikan rare: {self.rare_fish_caught}/3)")
+            if self.rare_fish_caught >= 3 and "Danau" not in self.unlocked_locations:
+                self.unlocked_locations.append("Danau")
+                print("Spot Danau terbuka berkat koleksi ikan rare!")
 
     def show_inventory(self):
         if not self.inventory:
