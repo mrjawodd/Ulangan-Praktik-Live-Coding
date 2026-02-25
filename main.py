@@ -36,6 +36,7 @@ class Equipment:
         self.rod = Component("Joran")
         self.hook = Component("Kail")
         self.line = Component("Senar")
+        self.boat = Component("Boat")
 
     def upgrade(self, part: str):
         if part == "1":
@@ -44,16 +45,19 @@ class Equipment:
             self.hook.upgrade()
         elif part == "3":
             self.line.upgrade()
+        elif part == "4":
+            self.boat.upgrade()
         else:
             print("Pilihan tidak valid.")
 
     def status(self):
         return (f"Joran: {self.rod.name}, Kail: {self.hook.name}, "
-                f"Senar: {self.line.name}")
+                f"Senar: {self.line.name}, Boat: {self.boat.name}")
 
     def total_level(self):
         # used for fishing bonus
-        return self.rod.level + self.hook.level + self.line.level
+        return (self.rod.level + self.hook.level +
+                self.line.level + self.boat.level)
 
 
 class Player:
@@ -204,11 +208,12 @@ def show_equipment_menu(player):
     print("1. Joran")
     print("2. Kail")
     print("3. Senar")
-    print("4. Kembali")
+    print("4. Boat")
+    print("5. Kembali")
     choice = input("> ")
-    if choice in ["1", "2", "3"]:
+    if choice in ["1", "2", "3", "4"]:
         player.equipment.upgrade(choice)
-    elif choice == "4":
+    elif choice == "5":
         return
     else:
         print("Pilihan tidak valid.")
