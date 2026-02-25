@@ -12,10 +12,11 @@ class Fish:
         return f"{self.name} ({self.rarity})"
 
 
-class Equipment:
+class Component:
     LEVELS = ["Basic", "Advanced", "Pro"]
 
-    def __init__(self):
+    def __init__(self, kind: str):
+        self.kind = kind
         self.level = 0
 
     @property
@@ -25,9 +26,34 @@ class Equipment:
     def upgrade(self):
         if self.level < len(self.LEVELS) - 1:
             self.level += 1
-            print(f"Peralatan ditingkatkan menjadi {self.name}!")
+            print(f"{self.kind} ditingkatkan menjadi {self.name}!")
         else:
-            print("Peralatan sudah paling tinggi.")
+            print(f"{self.kind} sudah pada level tertinggi.")
+
+
+class Equipment:
+    def __init__(self):
+        self.rod = Component("Joran")
+        self.hook = Component("Kail")
+        self.line = Component("Senar")
+
+    def upgrade(self, part: str):
+        if part == "1":
+            self.rod.upgrade()
+        elif part == "2":
+            self.hook.upgrade()
+        elif part == "3":
+            self.line.upgrade()
+        else:
+            print("Pilihan tidak valid.")
+
+    def status(self):
+        return (f"Joran: {self.rod.name}, Kail: {self.hook.name}, "
+                f"Senar: {self.line.name}")
+
+    def total_level(self):
+        # used for fishing bonus
+        return self.rod.level + self.hook.level + self.line.level
 
 
 class Player:
@@ -69,10 +95,11 @@ class Location:
     def fish(self, player):
         # determine caught fish based on equipment
         weights = []
+        bonus_level = player.equipment.total_level()
         for fish in self.fishes:
             base = {"common": 60, "rare": 30, "legendary": 10}[fish.rarity]
-            # equipment bonus: higher level increases chance for rare/legendary
-            bonus = player.equipment.level * 5
+            # equipment bonus: higher combined level increases chance for rare/legendary
+            bonus = bonus_level * 3
             if fish.rarity == "rare":
                 base += bonus
             elif fish.rarity == "legendary":
@@ -127,7 +154,7 @@ missions_list = [
     Mission(
         "Tangkap ikan legendary",
         lambda p: any(f.rarity == "legendary" for f in p.inventory),
-        lambda p: p.equipment.upgrade(),
+        lambda p: p.equipment.upgrade("1"),  # upgrade joran by default
     ),
 ]
 
@@ -155,10 +182,27 @@ def show_main_menu():
     print("\n=== Petualangan Mancing Nusantara ===")
     print("1. Berangkat memancing")
     print("2. Lihat inventaris")
-    print("3. Periksa peralatan")
+    print("3. Periksa & tingkatkan peralatan")
     print("4. Periksa misi")
     print("5. Tambah lokasi baru")
     print("6. Keluar")
+
+
+def show_equipment_menu(player):
+    print("\nPeralatan saat ini:")
+    print(player.equipment.status())
+    print("Pilih bagian untuk ditingkatkan:")
+    print("1. Joran")
+    print("2. Kail")
+    print("3. Senar")
+    print("4. Kembali")
+    choice = input("> ")
+    if choice in ["1", "2", "3"]:
+        player.equipment.upgrade(choice)
+    elif choice == "4":
+        return
+    else:
+        print("Pilihan tidak valid.")
 
 
 def choose_location(player):
@@ -203,7 +247,7 @@ def main():
         elif choice == "2":
             player.show_inventory()
         elif choice == "3":
-            print(f"Peralatan saat ini: {player.equipment.name}")
+            show_equipment_menu(player)
         elif choice == "4":
             check_missions(player)
         elif choice == "5":
