@@ -194,8 +194,7 @@ def show_main_menu():
     print("2. Lihat inventory")
     print("3. Periksa & tingkatkan peralatan")
     print("4. Periksa misi")
-    print("5. Tambah lokasi baru")
-    print("6. Keluar")
+    print("5. Keluar")
 
 
 def show_equipment_menu(player):
@@ -270,8 +269,6 @@ def main():
         elif choice == "4":
             check_missions(player)
         elif choice == "5":
-            add_new_location(player)
-        elif choice == "6":
             print("Terima kasih telah bermain!")
             break
         else:
