@@ -69,9 +69,9 @@ class Player:
 
     def show_inventory(self):
         if not self.inventory:
-            print("Inventaris kosong.")
+            print("Inventory kosong.")
             return
-        print("Inventaris ikan:")
+        print("Inventory ikan:")
         counts = {}
         for f in self.inventory:
             counts[str(f)] = counts.get(str(f), 0) + 1
@@ -191,7 +191,7 @@ def add_new_location(player):
 def show_main_menu():
     print("\n=== Petualangan Mancing Nusantara ===")
     print("1. Berangkat memancing")
-    print("2. Lihat inventaris")
+    print("2. Lihat inventory")
     print("3. Periksa & tingkatkan peralatan")
     print("4. Periksa misi")
     print("5. Tambah lokasi baru")
@@ -216,17 +216,26 @@ def show_equipment_menu(player):
 
 
 def choose_location(player):
-    print("Pilih lokasi:")
-    for idx, name in enumerate(player.unlocked_locations, start=1):
-        print(f"{idx}. {name}")
-    print(f"{len(player.unlocked_locations)+1}. Batal")
+    # Show fixed fishing spot categories
+    print("Destinasi spot mancing:")
+    categories = ["Sungai", "Danau", "Laut"]
+    for idx, name in enumerate(categories, start=1):
+        status = "(terbuka)" if name in player.unlocked_locations else "(terkunci)"
+        print(f"{idx}. {name} {status}")
+    print(f"{len(categories)+1}. Batal")
+
     choice = input("> ")
     try:
         choice = int(choice)
     except ValueError:
         return None
-    if 1 <= choice <= len(player.unlocked_locations):
-        return locations[player.unlocked_locations[choice-1]]
+    if 1 <= choice <= len(categories):
+        sel = categories[choice-1]
+        if sel in player.unlocked_locations:
+            return locations[sel]
+        else:
+            print(f"Spot {sel} belum dibuka.")
+            return None
     return None
 
 
